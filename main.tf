@@ -233,6 +233,7 @@ resource "aws_rds_cluster" "default" {
       "availability_zones",
     ]
   }
+  iam_database_authentication_enabled = "${var.iam_database_authentication_enabled}"
 }
 
 // Geneate an ID when an environment is initialised
