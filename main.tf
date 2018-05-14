@@ -161,7 +161,7 @@ resource "aws_db_subnet_group" "main" {
   description = "Group of DB subnets"
   subnet_ids  = ["${var.subnets}"]
 
-  tags = "${var.tags}"
+  tags = "${merge(var.tags, map("Name", format("%s", var.identifier_prefix)))}"
 }
 
 // Create single DB instance
@@ -181,7 +181,7 @@ resource "aws_rds_cluster_instance" "cluster_instance_0" {
   auto_minor_version_upgrade   = "${var.auto_minor_version_upgrade}"
   promotion_tier               = "0"
 
-  tags = "${var.tags}"
+  tags = "${merge(var.tags, map("Name", format("%s", var.identifier_prefix)))}"
 }
 
 // Create 'n' number of additional DB instance(s) in same cluster
@@ -203,7 +203,7 @@ resource "aws_rds_cluster_instance" "cluster_instance_n" {
   auto_minor_version_upgrade   = "${var.auto_minor_version_upgrade}"
   promotion_tier               = "${count.index + 1}"
 
-  tags = "${var.tags}"
+  tags = "${merge(var.tags, map("Name", format("%s", var.identifier_prefix)))}"
 }
 
 // Create DB Cluster

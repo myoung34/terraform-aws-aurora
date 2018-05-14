@@ -218,4 +218,5 @@ variable "replica_scale_out_cooldown" {
 variable "tags" {
   description = "A mapping of tags to assign to the resource"
   default     = {}
+  type        = "map"
 }
