@@ -3,6 +3,11 @@ variable "name" {
   description = "Name given to DB subnet group"
 }
 
+variable "database_name" {
+  type        = "string"
+  description = "Name given to DB"
+}
+
 variable "subnets" {
   type        = "list"
   description = "List of subnet IDs to use"

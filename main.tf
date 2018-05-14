@@ -234,6 +234,7 @@ resource "aws_rds_cluster" "default" {
   storage_encrypted               = "${var.storage_encrypted}"
   apply_immediately               = "${var.apply_immediately}"
   db_cluster_parameter_group_name = "${var.db_cluster_parameter_group_name}"
+  database_name                   = "${var.database_name}"
 
   lifecycle {
     ignore_changes = [
