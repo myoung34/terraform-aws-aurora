@@ -38,8 +38,6 @@
   * module "aurora_db_56" {
   *   source                              = "../.."
   *   name                                = "test-aurora-db-56"
-  *   envname                             = "test56"
-  *   envtype                             = "test"
   *   subnets                             = ["${module.vpc.private_subnets}"]
   *   azs                                 = ["${module.vpc.availability_zones}"]
   *   replica_count                       = "1"
@@ -83,8 +81,6 @@
   *   engine                          = "aurora-mysql"
   *   engine-version                  = "5.7.12"
   *   name                            = "test-aurora-db-57"
-  *   envname                         = "test-57"
-  *   envtype                         = "test"
   *   subnets                         = ["${module.vpc.private_subnets}"]
   *   azs                             = ["${module.vpc.availability_zones}"]
   *   replica_count                   = "1"
@@ -127,8 +123,6 @@
   *   engine                          = "aurora-postgresql"
   *   engine-version                  = "9.6.3"
   *   name                            = "test-aurora-db-postgres96"
-  *   envname                         = "test-pg96"
-  *   envtype                         = "test"
   *   subnets                         = ["${module.vpc.private_subnets}"]
   *   azs                             = ["${module.vpc.availability_zones}"]
   *   replica_count                   = "1"
@@ -167,15 +161,12 @@ resource "aws_db_subnet_group" "main" {
   description = "Group of DB subnets"
   subnet_ids  = ["${var.subnets}"]
 
-  tags {
-    envname = "${var.envname}"
-    envtype = "${var.envtype}"
-  }
+  tags = "${var.tags}"
 }
 
 // Create single DB instance
 resource "aws_rds_cluster_instance" "cluster_instance_0" {
-  identifier                   = "${var.identifier_prefix != "" ? format("%s-node-0", var.identifier_prefix) : format("%s-aurora-node-0", var.envname)}"
+  identifier                   = "${var.identifier_prefix}"
   cluster_identifier           = "${aws_rds_cluster.default.id}"
   engine                       = "${var.engine}"
   engine_version               = "${var.engine-version}"
@@ -190,10 +181,7 @@ resource "aws_rds_cluster_instance" "cluster_instance_0" {
   auto_minor_version_upgrade   = "${var.auto_minor_version_upgrade}"
   promotion_tier               = "0"
 
-  tags {
-    envname = "${var.envname}"
-    envtype = "${var.envtype}"
-  }
+  tags = "${var.tags}"
 }
 
 // Create 'n' number of additional DB instance(s) in same cluster
@@ -202,7 +190,7 @@ resource "aws_rds_cluster_instance" "cluster_instance_n" {
   count                        = "${var.replica_scale_enabled ? var.replica_scale_min : var.replica_count}"
   engine                       = "${var.engine}"
   engine_version               = "${var.engine-version}"
-  identifier                   = "${var.identifier_prefix != "" ? format("%s-node-%d", var.identifier_prefix, count.index + 1) : format("%s-aurora-node-%d", var.envname, count.index + 1)}"
+  identifier                   = "${var.identifier_prefix}"
   cluster_identifier           = "${aws_rds_cluster.default.id}"
   instance_class               = "${var.instance_type}"
   publicly_accessible          = "${var.publicly_accessible}"
@@ -215,15 +203,12 @@ resource "aws_rds_cluster_instance" "cluster_instance_n" {
   auto_minor_version_upgrade   = "${var.auto_minor_version_upgrade}"
   promotion_tier               = "${count.index + 1}"
 
-  tags {
-    envname = "${var.envname}"
-    envtype = "${var.envtype}"
-  }
+  tags = "${var.tags}"
 }
 
 // Create DB Cluster
 resource "aws_rds_cluster" "default" {
-  cluster_identifier = "${var.identifier_prefix != "" ? format("%s-cluster", var.identifier_prefix) : format("%s-aurora-cluster", var.envname)}"
+  cluster_identifier = "${var.identifier_prefix}"
   availability_zones = ["${var.azs}"]
   engine             = "${var.engine}"
 
@@ -274,7 +259,7 @@ data "aws_iam_policy_document" "monitoring-rds-assume-role-policy" {
 
 resource "aws_iam_role" "rds-enhanced-monitoring" {
   count              = "${var.monitoring_interval > 0 ? 1 : 0}"
-  name               = "rds-enhanced-monitoring-${var.envname}"
+  name               = "rds-enhanced-monitoring-${var.identifier_prefix}"
   assume_role_policy = "${data.aws_iam_policy_document.monitoring-rds-assume-role-policy.json}"
 }
 
