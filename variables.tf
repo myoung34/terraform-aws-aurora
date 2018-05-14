@@ -10,7 +10,6 @@ variable "subnets" {
 
 variable "identifier_prefix" {
   type        = "string"
-  default     = ""
   description = "Prefix for cluster and instance identifier"
 }
 

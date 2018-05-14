@@ -46,7 +46,6 @@
   *   username                            = "root"
   *   password                            = "changeme"
   *   backup_retention_period             = "5"
-  *   iam_database_authentication_enabled = "true"
   *   final_snapshot_identifier           = "final-db-snapshot-prod"
   *   storage_encrypted                   = "true"
   *   apply_immediately                   = "true"
@@ -97,6 +96,10 @@
   *   cw_sns_topic                    = "${aws_sns_topic.db_alarms.id}"
   *   db_parameter_group_name         = "${aws_db_parameter_group.aurora_db_57_parameter_group.id}"
   *   db_cluster_parameter_group_name = "${aws_rds_cluster_parameter_group.aurora_57_cluster_parameter_group.id}"
+  *   tags = {
+  *     envname                       = "test-57"
+  *     envtype                       = "test"
+  *   }
   * }
   * 
   * resource "aws_db_parameter_group" "aurora_db_57_parameter_group" {
@@ -139,6 +142,10 @@
   *   cw_sns_topic                    = "${aws_sns_topic.db_alarms_postgres96.id}"
   *   db_parameter_group_name         = "${aws_db_parameter_group.aurora_db_postgres96_parameter_group.id}"
   *   db_cluster_parameter_group_name = "${aws_rds_cluster_parameter_group.aurora_cluster_postgres96_parameter_group.id}"
+  *   tags = {
+  *     envname                       = "test-pg96"
+  *     envtype                       = "test"
+  *   }
   * }
   *
   * resource "aws_db_parameter_group" "aurora_db_postgres96_parameter_group" {
@@ -166,7 +173,7 @@ resource "aws_db_subnet_group" "main" {
 
 // Create single DB instance
 resource "aws_rds_cluster_instance" "cluster_instance_0" {
-  identifier                   = "${var.identifier_prefix}"
+  identifier                   = "${format("%s-node-0", var.identifier_prefix)}"
   cluster_identifier           = "${aws_rds_cluster.default.id}"
   engine                       = "${var.engine}"
   engine_version               = "${var.engine-version}"
@@ -190,7 +197,7 @@ resource "aws_rds_cluster_instance" "cluster_instance_n" {
   count                        = "${var.replica_scale_enabled ? var.replica_scale_min : var.replica_count}"
   engine                       = "${var.engine}"
   engine_version               = "${var.engine-version}"
-  identifier                   = "${var.identifier_prefix}"
+  identifier                   = "${format("%s-node-%d", var.identifier_prefix, count.index + 1)}"
   cluster_identifier           = "${aws_rds_cluster.default.id}"
   instance_class               = "${var.instance_type}"
   publicly_accessible          = "${var.publicly_accessible}"
@@ -208,7 +215,7 @@ resource "aws_rds_cluster_instance" "cluster_instance_n" {
 
 // Create DB Cluster
 resource "aws_rds_cluster" "default" {
-  cluster_identifier = "${var.identifier_prefix}"
+  cluster_identifier = "${format("%s-cluster", var.identifier_prefix)}"
   availability_zones = ["${var.azs}"]
   engine             = "${var.engine}"
 
