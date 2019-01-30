@@ -24,3 +24,20 @@ output "cluster_identifier" {
 output "cluster_resource_id" {
   value = "${aws_rds_cluster.default.cluster_resource_id}"
 }
+
+output "cluster_instance_arns" {
+  value = ["${aws_rds_cluster_instance.cluster_instance_0.arn}", "${aws_rds_cluster_instance.cluster_instance_n.*.arn}"]
+}
+
+output "cluster_instance_identifiers" {
+  value = ["${aws_rds_cluster_instance.cluster_instance_0.identifier}", "${aws_rds_cluster_instance.cluster_instance_n.*.identifier}"]
+}
+
+
+output "cluster_arn" {
+  value = "${aws_rds_cluster.default.arn}"
+}
+
+output "cluster_cluster_resource_id" {
+  value = "${aws_rds_cluster.default.cluster_resource_id}"
+}
